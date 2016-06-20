@@ -9,43 +9,43 @@ function RichError(config) {
 }
 
 
-RichError.prototype._error = function (sendStatus, sendBody) {
+RichError.prototype._error = function (send) {
     var self = this;
 
     return function (err) {
-        if (typeof err == "number") {
-            err = err.toString();
-            if (self._map[err]) {
-                var body =  {
+        var error_type = typeof err;
+        switch (error_type) {
+            case 'number':
+                err = err.toString();
+                if (self._map[err]) {
+                    var body =  {
                         code: self.prefix + err ,
                         description: self._map[err]
                     };
-                sendBody.call(this, 1 * err.substr(0, 3), body);
+                    send.call(this, 1 * err.substr(0, 3), body);
 
-            } else {
-                console.error('[' + new Date() + '] Unknown code ' + err);
-                sendStatus.call(this, 500);
-            }
-        } else {
-            console.error('[' + new Date() + '] ' +  err.message);
-            console.error(err.stack);
-            sendStatus.call(this, 500);
+                } else {
+                    console.error('[' + new Date() + '] Unknown code ' + err);
+                    send.call(this, 500);
+                }
+                break;
+            case 'string':
+
+                break;
+            case 'Object':
+                break;
         }
     };
 
 };
 
 RichError.prototype.koa = function () {
-    var sendBody = function (status, body) {
+    var send = function (status, body) {
         this.status = status;
-        this.body = body;
+        if (body) this.body = body;
     };
 
-    var sendStatus = function (status) {
-        this.status = status;
-    };
-
-    var err = this._error(sendStatus, sendBody);
+    var err = this._error(send);
 
     return function *(next) {
         try {
@@ -57,17 +57,16 @@ RichError.prototype.koa = function () {
 };
 
 RichError.prototype.restify = RichError.prototype.express = function () {
-    var sendBody = function (status, body) {
+    var send = function(status, body) {
         this.statusCode = status;
-        this.send(body);
+        if (body) {
+            this.send(body);
+        } else {
+            this.end();
+        }
     };
 
-    var sendStatus = function (status) {
-        this.statusCode = status;
-        this.end();
-    };
-
-    var err = this._error(sendStatus,sendBody);
+    var err = this._error(send);
 
     return function (req, res, next) {
         res.err = err;
