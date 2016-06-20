@@ -1,12 +1,10 @@
 var fs = require('fs');
-var os = require('os');
-var yaml = require('js-yaml');
 
 function RichError(config) {
     config = config || {};
-    var file = config.file || './default.yaml';
+    var file = config.file || './default.json';
 
-    this._map = yaml.safeLoad(fs.readFileSync(file, 'utf-8'));
+    this._map = JSON.parse(fs.readFileSync(file, 'utf-8'));
     this.prefix = config.prefix || '';
 }
 
@@ -47,7 +45,7 @@ RichError.prototype.koa = function () {
         this.status = status;
     };
 
-    var err = this._error(sendBody, sendStatus);
+    var err = this._error(sendStatus, sendBody);
 
     return function *(next) {
         try {
@@ -69,7 +67,7 @@ RichError.prototype.restify = RichError.prototype.express = function () {
         this.end();
     };
 
-    var err = this._error(sendBody, sendStatus);
+    var err = this._error(sendStatus,sendBody);
 
     return function (req, res, next) {
         res.err = err;
