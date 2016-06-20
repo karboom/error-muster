@@ -46,11 +46,11 @@ describe('#RichError', function () {
 
             it('should get res by custom Error detector', function (done) {
                 request.get("http://localhost:"+ service[name] + '/error', function (err, res, body) {
-                    res.statusCode.should.equal(500);
+                    res.statusCode.should.equal(400);
 
                     body = JSON.parse(body);
-                    body.code.should.eql('test-403');
-                    body.description.should.eql('forbidden');
+                    body.code.should.eql('test-40001');
+                    body.description.should.eql('bad request');
 
                     done();
                 });
@@ -61,7 +61,13 @@ describe('#RichError', function () {
     before(function () {
         re = new RE({
             file: __dirname + '/../default.json',
-            prefix: 'test-'
+            prefix: 'test-',
+            detector: function (err) {
+                return {
+                    code: 40001,
+                    description: 'bad request'
+                }
+            }
         });
 
         restify.use(re.restify());

@@ -6,6 +6,8 @@ function RichError(config) {
 
     this._map = JSON.parse(fs.readFileSync(file, 'utf-8'));
     this.prefix = config.prefix || '';
+
+    this.detector = config.detector;
 }
 
 
@@ -25,7 +27,7 @@ RichError.prototype._error = function (send) {
                     send.call(this, 1 * err.substr(0, 3), body);
 
                 } else {
-                    console.error('[Rich-Error] [' + new Date() + '] Unknown code:' + err);
+                    console.error('[Rich-Error] [' + new Date() + '] Unknown code: ' + err);
                     send.call(this, 500);
                 }
                 break;
@@ -37,8 +39,24 @@ RichError.prototype._error = function (send) {
 
                 send.call(this, 200, body);
                 break;
-            case 'Object':
+            case 'object':
+                if (self.detector) {
+                    let body = self.detector(err);
 
+                    if (body.code && body.description) {
+                        let status = 1 * body.code.toString().substr(0, 3);
+                        body.code = self.prefix + body.code;
+                        
+                        send.call(this, status, body)
+                    } else {
+                        console.error('[Rich-Error] [' + new Date() + '] UnExcept detector return format');
+                        send.call(this, 500);
+                    }
+
+                } else {
+                    console.error('[Rich-Error] [' + new Date() + '] Undetected Error: ' + err.message);
+                    send.call(this, 500);
+                }
                 break;
         }
     };
