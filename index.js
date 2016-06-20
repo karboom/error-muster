@@ -18,21 +18,27 @@ RichError.prototype._error = function (send) {
             case 'number':
                 err = err.toString();
                 if (self._map[err]) {
-                    var body =  {
+                    let body =  {
                         code: self.prefix + err ,
                         description: self._map[err]
                     };
                     send.call(this, 1 * err.substr(0, 3), body);
 
                 } else {
-                    console.error('[' + new Date() + '] Unknown code ' + err);
+                    console.error('[Rich-Error] [' + new Date() + '] Unknown code:' + err);
                     send.call(this, 500);
                 }
                 break;
             case 'string':
+                let body = {
+                    code: self.prefix + '200',
+                    description: err
+                };
 
+                send.call(this, 200, body);
                 break;
             case 'Object':
+
                 break;
         }
     };

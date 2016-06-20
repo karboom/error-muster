@@ -28,26 +28,30 @@ describe('#RichError', function () {
             });
 
             it('should get 500 with non-defined code', function (done) {
-                request.get("http://localhost:"+ service[name] + '/code_non').on('response', function (res) {
+                request.get("http://localhost:"+ service[name] + '/code_non', function (err, res, body) {
                     res.statusCode.should.equal(500);
                     done();
                 });
             });
 
             it('should get 200 with only custom text', function (done) {
-                request.get("http://localhost:"+ service[name] + '/text').on('response', function (res) {
+                request.get("http://localhost:"+ service[name] + '/text', function (err, res, body) {
                     res.statusCode.should.equal(200);
-                    res.body.should.eql({
-                        code: 'test-200',
-                        description: 'An error'
-                    });
+                    body = JSON.parse(body);
+                    body.code.should.eql('test-200');
+                    body.description.should.eql('An error');
                     done();
                 });
             });
 
             it('should get res by custom Error detector', function (done) {
-                request.get("http://localhost:"+ service[name] + '/error').on('response', function (res) {
+                request.get("http://localhost:"+ service[name] + '/error', function (err, res, body) {
                     res.statusCode.should.equal(500);
+
+                    body = JSON.parse(body);
+                    body.code.should.eql('test-403');
+                    body.description.should.eql('forbidden');
+
                     done();
                 });
             });
