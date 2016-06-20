@@ -18,7 +18,7 @@ RichError.prototype._error = function (sendStatus, sendBody) {
             if (self._map[err]) {
                 var body =  {
                         code: self.prefix + err ,
-                        reason: self._map[err]
+                        description: self._map[err]
                     };
                 sendBody.call(this, 1 * err.substr(0, 3), body);
 

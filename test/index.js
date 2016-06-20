@@ -18,12 +18,11 @@ describe('#RichError', function () {
     function suite(name) {
         return function () {
             it('get code and body with config file', function (done) {
-                request.get("http://localhost:"+ service[name] + '/code').on('response', function (res, body) {
+                request.get("http://localhost:"+ service[name] + '/code', function (err, res, body) {
                     res.statusCode.should.equal(403);
-                    res.body.should.eql({
-                        code: 'test-403',
-                        description: 'forbidden'
-                    });
+                    body = JSON.parse(body);
+                    body.code.should.eql('test-403');
+                    body.description.should.eql('forbidden');
                     done();
                 });
             });
@@ -58,7 +57,7 @@ describe('#RichError', function () {
     before(function () {
         re = new RE({
             file: __dirname + '/../default.json',
-            prefix: 'test'
+            prefix: 'test-'
         });
 
         restify.use(re.restify());
