@@ -15,7 +15,9 @@ RichError.prototype._error = function (send) {
     var self = this;
 
     return function (err) {
-        var error_type = typeof err;
+        let error_type = typeof err;
+        let status_send, body_send;
+        
         switch (error_type) {
             case 'number':
                 err = err.toString();
@@ -24,11 +26,12 @@ RichError.prototype._error = function (send) {
                         code: self.prefix + err ,
                         description: self._map[err]
                     };
-                    send.call(this, 1 * err.substr(0, 3), body);
-
+                    
+                    status_send = 1 * err.substr(0, 3);
+                    body_send = body
                 } else {
-                    console.error('[Rich-Error] [' + new Date() + '] Unknown code: ' + err);
-                    send.call(this, 500);
+                    console.error('[Error-Muster] [' + new Date() + '] Unknown code: ' + err);
+                    status_send = 500
                 }
                 break;
             case 'string':
@@ -37,7 +40,8 @@ RichError.prototype._error = function (send) {
                     description: err
                 };
 
-                send.call(this, 200, body);
+                status_send = 200;
+                body_send = body;
                 break;
             case 'object':
                 if (self.detector) {
@@ -47,18 +51,20 @@ RichError.prototype._error = function (send) {
                         let status = 1 * body.code.toString().substr(0, 3);
                         body.code = self.prefix + body.code;
                         
-                        send.call(this, status, body)
+                        status_send = status;
+                        body_send = body
                     } else {
-                        console.error('[Rich-Error] [' + new Date() + '] UnExcept detector return format');
-                        send.call(this, 500);
+                        console.error('[Error-Muster] [' + new Date() + '] UnExcept detector return format');
+                        status_send = 500
                     }
-
                 } else {
-                    console.error('[Rich-Error] [' + new Date() + '] Undetected Error: ' + err.message);
-                    send.call(this, 500);
+                    console.error('[Error-Muster] [' + new Date() + '] Undetected Error: ' + err.message);
+                    status_send = 500
                 }
                 break;
         }
+        
+        send.call(this, status_send, body_send)
     };
 
 };
