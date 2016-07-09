@@ -8,6 +8,7 @@ function RichError(config) {
     this.prefix = config.prefix || '';
 
     this.detector = config.detector;
+    this.tpl = config.tpl;
 }
 
 
@@ -64,7 +65,17 @@ RichError.prototype._error = function (send) {
                 break;
         }
         
-        send.call(this, status_send, body_send)
+        if (self.tpl) {
+            let tpl_str = fs.readFileSync(self.tpl, 'utf-8');
+            
+            let body = tpl_str
+                .replace('{{code}}', body_send.code)
+                .replace('{{description}}', body_send.description);
+            
+            send.call(this, status_send, body)
+        } else {
+            send.call(this, status_send, body_send)
+        }
     };
 
 };
