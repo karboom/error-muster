@@ -37,11 +37,11 @@ RichError.prototype._error = function (send) {
                 break;
             case 'string':
                 let body = {
-                    code: self.prefix + '200',
+                    code: self.prefix + '500',
                     description: err
                 };
 
-                status_send = 200;
+                status_send = 500;
                 body_send = body;
                 break;
             case 'object':
