@@ -88,8 +88,9 @@ RichError.prototype._error = function (send) {
 
 RichError.prototype.koa = function () {
     var send = function (status, body, headers) {
-        this.status = status;
-        if (body) this.body = body;
+        this.set(headers)
+        this.status = status
+        this.body = body
     };
 
     var err = this._error(send);
@@ -105,12 +106,9 @@ RichError.prototype.koa = function () {
 
 RichError.prototype.restify = RichError.prototype.express = function () {
     var send = function(status, body, headers) {
+        this.set(headers)
         this.statusCode = status;
-        if (body) {
-            this.send(body);
-        } else {
-            this.end();
-        }
+        this.send(body);
     };
 
     var err = this._error(send);
