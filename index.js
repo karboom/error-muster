@@ -16,47 +16,36 @@ RichError.prototype._error = function (send) {
     var self = this;
 
     return function (err) {
-        let error_type = typeof err;
-        let status_send = 500,
-            body_send = {
-                code: self.prefix + 500,
-                description: '服务器错误'
-            }
+        let error_type = typeof err
+
+        // default is unknown error
+        let status = 500
+            code = self.prefix + 500
+            description = '服务器错误'
 
         switch (error_type) {
             case 'number':
                 err = err.toString();
                 if (self._map[err]) {
-                    let body =  {
-                        code: self.prefix + err ,
-                        description: self._map[err]
-                    };
-
-                    status_send = 1 * err.substr(0, 3);
-                    body_send = body
+                    code = self.prefix + err
+                    description = self._map[err]
+                    status = 1 * err.substr(0, 3);
                 } else {
                     console.error('[Error-Muster] [' + new Date() + '] Unknown code: ' + err);
                 }
                 break;
             case 'string':
-                let body = {
-                    code: self.prefix + '500',
-                    description: err
-                };
-
-                status_send = 500;
-                body_send = body;
+                code =  self.prefix + '500'
+                description = err
+                status = 500;
                 break;
             case 'object':
                 if (self.detector) {
-                    let body = self.detector(err);
+                    let {code, description} = self.detector(err);
 
-                    if (body.code && body.description) {
-                        let status = 1 * body.code.toString().substr(0, 3);
-                        body.code = self.prefix + body.code;
-
-                        status_send = status;
-                        body_send = body
+                    if (code && description) {
+                        status = 1 * code.toString().substr(0, 3);
+                        code = self.prefix + code;
                     } else {
                         console.error('[Error-Muster] [' + new Date() + '] UnExcept detector return format');
                     }
@@ -66,23 +55,28 @@ RichError.prototype._error = function (send) {
                 break;
         }
 
-        if (self.tpl) {
-            let tpl_str = fs.readFileSync(self.tpl, 'utf-8');
-
-            let body = tpl_str
-                .replace('{{code}}', body_send.code)
-                .replace('{{description}}', body_send.description);
-
-            send.call(this, status_send, body)
-        } else {
-            send.call(this, status_send, body_send)
+        // concat body and headers
+        let headers = {
+            'X-Error-Code': code,
+            'X-Error-Description': description
         }
-    };
 
+        let body = {
+            code, description
+        }
+
+        if (self.tpl) {
+            body = fs.readFileSync(self.tpl, 'utf-8')
+                .replace('{{code}}', code)
+                .replace('{{description}}', description);
+        }
+
+        send.call(this, status, body, headers)
+    };
 };
 
 RichError.prototype.koa = function () {
-    var send = function (status, body) {
+    var send = function (status, body, headers) {
         this.status = status;
         if (body) this.body = body;
     };
@@ -99,7 +93,7 @@ RichError.prototype.koa = function () {
 };
 
 RichError.prototype.restify = RichError.prototype.express = function () {
-    var send = function(status, body) {
+    var send = function(status, body, headers) {
         this.statusCode = status;
         if (body) {
             this.send(body);
