@@ -17,8 +17,12 @@ RichError.prototype._error = function (send) {
 
     return function (err) {
         let error_type = typeof err;
-        let status_send, body_send;
-        
+        let status_send = 500,
+            body_send = {
+                code: self.prefix + 500,
+                description: '服务器错误'
+            }
+
         switch (error_type) {
             case 'number':
                 err = err.toString();
@@ -27,12 +31,11 @@ RichError.prototype._error = function (send) {
                         code: self.prefix + err ,
                         description: self._map[err]
                     };
-                    
+
                     status_send = 1 * err.substr(0, 3);
                     body_send = body
                 } else {
                     console.error('[Error-Muster] [' + new Date() + '] Unknown code: ' + err);
-                    status_send = 500
                 }
                 break;
             case 'string':
@@ -51,27 +54,25 @@ RichError.prototype._error = function (send) {
                     if (body.code && body.description) {
                         let status = 1 * body.code.toString().substr(0, 3);
                         body.code = self.prefix + body.code;
-                        
+
                         status_send = status;
                         body_send = body
                     } else {
                         console.error('[Error-Muster] [' + new Date() + '] UnExcept detector return format');
-                        status_send = 500
                     }
                 } else {
                     console.error('[Error-Muster] [' + new Date() + '] Undetected Error: ' + err.message);
-                    status_send = 500
                 }
                 break;
         }
-        
+
         if (self.tpl) {
             let tpl_str = fs.readFileSync(self.tpl, 'utf-8');
-            
+
             let body = tpl_str
                 .replace('{{code}}', body_send.code)
                 .replace('{{description}}', body_send.description);
-            
+
             send.call(this, status_send, body)
         } else {
             send.call(this, status_send, body_send)
