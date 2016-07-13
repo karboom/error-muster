@@ -3,7 +3,8 @@ var ErrorEntity = require('./entity')
 
 function RichError(config) {
     config = config || {};
-    var file = config.file || './default.json';
+    let i18n = config.i18n || 'zh-cn'
+    let file = config.file || `./i18n/${i18n}.json`;
 
     this._map = JSON.parse(fs.readFileSync(file, 'utf-8'));
     this.prefix = config.prefix || '';
