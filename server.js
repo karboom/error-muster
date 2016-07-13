@@ -1,4 +1,5 @@
 var fs = require('fs');
+var ErrorEntity = require('./entity')
 
 function RichError(config) {
     config = config || {};
@@ -22,6 +23,9 @@ RichError.prototype._error = function (send) {
         let status = 500
             code = self.prefix + 500
             description = '服务器错误'
+       
+        // default template
+        let template = self.tpl
 
         switch (error_type) {
             case 'number':
@@ -40,9 +44,16 @@ RichError.prototype._error = function (send) {
                 status = 500;
                 break;
             case 'object':
-                if (self.detector) {
-                    let {code, description} = self.detector(err);
-
+                if (err instanceof ErrorEntity) {
+                    code = err.code
+                    description = err.description
+                    template = err.tpl
+                } else if (self.detector) {
+                    let res = self.detector(err);
+                    code = res.code
+                    description = res.description
+                    template = res.tpl
+                    
                     if (code && description) {
                         status = 1 * code.toString().substr(0, 3);
                         code = self.prefix + code;
@@ -65,8 +76,8 @@ RichError.prototype._error = function (send) {
             code, description
         }
 
-        if (self.tpl) {
-            body = fs.readFileSync(self.tpl, 'utf-8')
+        if (template) {
+            body = fs.readFileSync(template, 'utf-8')
                 .replace('{{code}}', code)
                 .replace('{{description}}', description);
         }
