@@ -63,6 +63,7 @@ RichError.prototype._error = function (send) {
                     }
                 } else {
                     console.error('[Error-Muster] [' + new Date() + '] Undetected Error: ' + err.message);
+                    console.error(err.stack);
                 }
                 break;
         }
@@ -70,7 +71,7 @@ RichError.prototype._error = function (send) {
         // concat body and headers
         let headers = {
             'X-Error-Code': code,
-            'X-Error-Description': description
+            'X-Error-Description': encodeURIComponent(description)
         }
 
         let body = {

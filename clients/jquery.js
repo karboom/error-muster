@@ -51,7 +51,7 @@
                 reason = xhr.getResponseHeader('X-Error-Description');
             }
 
-            $.fn.ajax_error(reason);
+            $.fn.ajax_error(decodeURIComponent(reason));
         }
     });
 })($);
