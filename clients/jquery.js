@@ -1,42 +1,6 @@
 (function ($) {
-    $.fn.ajax_error = function (reason) {
-        var view = document.createElement('div');
+    $.fn.ajax_error_alert = alert;
 
-        view.innerText = reason;
-        view.style.color = '#FFF';
-        view.style.zIndex = '999999999';
-        view.style.position = 'fixed';
-        view.style.top = '-50px';
-        view.style.width = '100%';
-        view.style.backgroundColor = '#E1715B';
-        view.style.textAlign = 'center';
-        view.style.cursor = 'pointer';
-
-        var height = '50px';
-        view.style.lineHeight = height;
-        view.style.height = height;
-
-        var transition = 'all 0.5s ease';
-        view.style.transition = transition;
-        view.style.MozTransition = transition;
-        view.style.WebkitTransition = transition;
-
-        document.body.appendChild(view);
-
-        setTimeout(function () {
-            view.style.top = '0px';
-            view.style.opacity = 1;
-        }, 100);
-
-        setTimeout(function () {
-            view.style.top = '-50px';
-            view.style.opacity = 0.3;
-        }, 3100);
-
-        setTimeout(function () {
-            document.body.removeChild(view);
-        }, 4000)
-    };
 
     $.ajaxSetup({
         error: function (xhr) {
