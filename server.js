@@ -1,5 +1,5 @@
 var fs = require('fs');
-var ErrorEntity = require('./entity')
+var ErrorEntity = require('./libs/entity')
 
 function RichError(config) {
     config = config || {};
