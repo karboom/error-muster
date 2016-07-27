@@ -1,5 +1,5 @@
 require('should');
-var RE = require('../index');
+var RE = require('../server');
 
 var restify = require('restify').createServer();
 var koa = require('koa')();
@@ -60,7 +60,7 @@ describe('#RichError', function () {
 
     before(function () {
         re = new RE({
-            file: __dirname + '/../default.json',
+            file: __dirname + '/../i18n/en.json',
             prefix: 'test-',
             detector: function (err) {
                 return {
