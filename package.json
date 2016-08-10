@@ -1,8 +1,8 @@
 {
   "name": "error-muster",
-  "version": "2.1.0",
+  "version": "2.1.2",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
