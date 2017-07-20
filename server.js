@@ -88,6 +88,24 @@ RichError.prototype._error = function (send) {
     };
 };
 
+RichError.prototype.koa2 = function () {
+    var send = function (status, body, headers) {
+        this.set(headers)
+        this.status = status
+        this.body = body
+    };
+
+    var err = this._error(send);
+
+    return async (ctx, next) => {
+        try {
+            await next();
+        } catch (error) {
+            err.call(ctx, error);
+        }
+    }
+}
+
 RichError.prototype.koa = function () {
     var send = function (status, body, headers) {
         this.set(headers)
