@@ -40,9 +40,9 @@ RichError.prototype._error = function (send) {
                 }
                 break;
             case 'string':
-                code =  self.prefix + '500'
+                code =  self.prefix + '403'
                 description = err
-                status = 500;
+                status = 403;
                 break;
             case 'object':
                 if (err instanceof ErrorEntity) {
