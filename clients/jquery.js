@@ -12,7 +12,7 @@
             if ( failed && 'error' === xhr.statusText) {
                 reason = '网络错误，请检查本地网络链接';
             } else {
-                reason = xhr.getResponseHeader('X-Error-Description');
+                reason = xhr.getResponseHeader('X-Error-Description') || '服务器开小差了';
             }
 
             $.fn.ajax_error(decodeURIComponent(reason));
