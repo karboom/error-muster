@@ -16,6 +16,7 @@ function RichError(config) {
 
 RichError.prototype._error = function (send) {
     var self = this;
+    var template_cache = {}
 
     return function (err) {
         let error_type = typeof err
@@ -79,7 +80,16 @@ RichError.prototype._error = function (send) {
         }
 
         if (template) {
-            body = fs.readFileSync(template, 'utf-8')
+            var template_str
+
+            if (template_cache[template]) {
+                template_str = template_cache[template]
+            } else {
+                template_str = fs.readFileSync(template, 'utf-8')
+                template_cache[template] = template_str
+            }
+
+            body =  template_str
                 .replace('{{code}}', code)
                 .replace('{{description}}', description);
         }
